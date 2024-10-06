@@ -1,14 +1,15 @@
 import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+from sentence_transformers import SentenceTransformer
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
-import openai
-import os
+from transformers import pipeline
+
+# Load environment variables
+load_dotenv()
 
 # Function to extract text from PDF files
 def extract_pdf_text(pdf_files):
@@ -25,20 +26,27 @@ def extract_pdf_text(pdf_files):
     return combined_text
 
 # Split text into manageable chunks
-def split_text_into_chunks(text):
-    splitter = CharacterTextSplitter(separator="\n", chunk_size=1200, chunk_overlap=100, length_function=len)
-    chunks = splitter.split_text(text)
+def split_text_into_chunks(text, chunk_size=1200, chunk_overlap=100):
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start += chunk_size - chunk_overlap
     return chunks
 
-# Create a vector store for similarity search
+# Create a vector store for similarity search using SentenceTransformer
 def create_vector_store(text_chunks):
-    embedder = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
-    vector_store = FAISS.from_texts(texts=text_chunks, embedding=embedder)
+    model = SentenceTransformer('hkunlp/instructor-xl')
+    embeddings = [model.encode(chunk) for chunk in text_chunks]
+    
+    # Create FAISS vector store from the embeddings
+    vector_store = FAISS.from_embeddings(embeddings)
     return vector_store
 
-# Conversation chain setup for handling chat
+# Initialize conversation chain for chat functionality
 def initialize_conversation_chain(vector_store):
-    language_model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5, max_tokens=512)
+    language_model = ChatOpenAI(model='gpt-3.5-turbo', temperature=0.5)
     memory = ConversationBufferMemory(memory_key='conversation_history', return_messages=True)
     chain = ConversationalRetrievalChain.from_llm(
         llm=language_model,
@@ -47,7 +55,7 @@ def initialize_conversation_chain(vector_store):
     )
     return chain
 
-# Process user question
+# Process user input for chat
 def process_user_input(user_input):
     result = st.session_state.conversation({'question': user_input})
     st.session_state.history = result['chat_history']
@@ -58,29 +66,14 @@ def process_user_input(user_input):
         else:
             st.markdown(f"**Bot:** {message.content}")
 
-# Text summarization using GPT-3.5
+# Summarization functionality
 def generate_summary(input_text, min_len, max_len):
-    openai.api_key = os.getenv('OPENAI_API_KEY')  # Load your OpenAI API key from .env
-    prompt = (
-        f"Please summarize the following text in a concise manner. The summary should be "
-        f"between {min_len} and {max_len} words:\n\n{input_text}"
-    )
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=max_len * 4,  # Roughly 4 tokens per word
-        temperature=0.5,
-    )
-    summary = response['choices'][0]['message']['content'].strip()
-    return summary
+    summarizer = pipeline('summarization')
+    summary = summarizer(input_text, min_length=min_len, max_length=max_len, do_sample=False)
+    return summary[0]['summary_text']
 
-# Main app function
+# Main application function
 def main():
-    load_dotenv()
-
     # Initialize session state variables
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
