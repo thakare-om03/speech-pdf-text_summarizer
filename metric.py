@@ -1,6 +1,7 @@
 import streamlit as st
 from transformers import pipeline
 from sklearn.metrics import precision_score, recall_score, f1_score
+import matplotlib.pyplot as plt
 
 # Function to calculate evaluation metrics
 def calculate_metrics(reference, generated):
@@ -16,6 +17,19 @@ def calculate_metrics(reference, generated):
     f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0
 
     return precision, recall, f1
+
+# Function to plot the metrics
+def plot_metrics(precision, recall, f1):
+    metrics = ['Precision', 'Recall', 'F1 Score']
+    values = [precision, recall, f1]
+
+    fig, ax = plt.subplots()
+    ax.bar(metrics, values, color=['#4CAF50', '#2196F3', '#FFC107'])
+    ax.set_ylim([0, 1])
+    ax.set_ylabel('Scores')
+    ax.set_title('Evaluation Metrics')
+
+    return fig
 
 # Set up page configuration
 st.set_page_config(page_title="Smart Summarizer", page_icon="📝", layout="wide")
@@ -50,6 +64,7 @@ summarize_button = st.button("Generate Summary")
 summary_placeholder = st.empty()
 length_placeholder = st.empty()
 metrics_placeholder = st.empty()
+metrics_chart_placeholder = st.empty()
 
 # Perform summarization if button is clicked
 if summarize_button:
@@ -70,8 +85,14 @@ if summarize_button:
             metrics_placeholder.write(f"**Precision:** {precision:.2f}")
             metrics_placeholder.write(f"**Recall:** {recall:.2f}")
             metrics_placeholder.write(f"**F1 Score:** {f1:.2f}")
+
+            # Plot and display the metrics as a bar chart
+            fig = plot_metrics(precision, recall, f1)
+            metrics_chart_placeholder.pyplot(fig)
+
         else:
             metrics_placeholder.warning("No reference summary provided for evaluation.")
+            metrics_chart_placeholder.empty()
 
     else:
         st.error("Please provide some text to summarize!")
