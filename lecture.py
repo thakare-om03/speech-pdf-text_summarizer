@@ -1,33 +1,26 @@
 import streamlit as st
 from dotenv import load_dotenv
+
+load_dotenv() ##load all the nevironment variables
 import os
 import google.generativeai as genai
+
 from youtube_transcript_api import YouTubeTranscriptApi
 
-# Load environment variables
-load_dotenv()
-
-# Configure the Google Generative AI Model with the API key
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# Define a prompt with a specific word limit mentioned
-prompt = """
-You are a YouTube video summarizer. You will be given a transcript text,
-and you need to summarize the entire video. Provide the summary in bullet points,
-and ensure that the total length does not exceed **1000 words**.
-Only highlight the main points in a concise manner.
-"""
+prompt="""You are Youtube video summarizer. You will be taking the transcript text
+and summarizing the entire video and providing the important summary in points
+within 800 words. Please provide the summary of the text given here:  """
 
-# Function to extract transcript details from YouTube video URL
+
+## getting the transcript data from yt videos
 def extract_transcript_details(youtube_video_url):
     try:
-        # Extract video ID from URL
-        video_id = youtube_video_url.split("=")[1]
+        video_id=youtube_video_url.split("=")[1]
         
-        # Retrieve the transcript using the YouTubeTranscriptApi
-        transcript_text = YouTubeTranscriptApi.get_transcript(video_id)
+        transcript_text=YouTubeTranscriptApi.get_transcript(video_id)
 
-        # Combine the transcript into a single string
         transcript = ""
         for i in transcript_text:
             transcript += " " + i["text"]
@@ -36,32 +29,26 @@ def extract_transcript_details(youtube_video_url):
 
     except Exception as e:
         raise e
+    
+## getting the summary based on Prompt from Google Gemini Pro
+def generate_gemini_content(transcript_text,prompt):
 
-# Function to generate a summary using Google Gemini
-def generate_gemini_content(transcript_text, prompt):
-    model = genai.GenerativeModel("gemini-pro")
-    # Call the generate_content function without max_output_tokens
-    response = model.generate_content(prompt + transcript_text)
+    model=genai.GenerativeModel("gemini-pro")
+    response=model.generate_content(prompt+transcript_text)
     return response.text
 
-# Streamlit UI for YouTube Transcript to Notes Converter
-st.title("YouTube lecture to Detailed Notes Converter")
-
-# Input field for YouTube Video Link
+st.title("YouTube Transcript to Detailed Notes Converter")
 youtube_link = st.text_input("Enter YouTube Video Link:")
 
-# Display thumbnail of the YouTube video
 if youtube_link:
     video_id = youtube_link.split("=")[1]
+    print(video_id)
     st.image(f"http://img.youtube.com/vi/{video_id}/0.jpg", use_column_width=True)
 
-# Button to generate the detailed notes
 if st.button("Get Detailed Notes"):
-    transcript_text = extract_transcript_details(youtube_link)
+    transcript_text=extract_transcript_details(youtube_link)
 
-    # Generate summary if transcript is available
     if transcript_text:
-        # Generate the summary based on the prompt only
-        summary = generate_gemini_content(transcript_text, prompt)
+        summary=generate_gemini_content(transcript_text,prompt)
         st.markdown("## Detailed Notes:")
         st.write(summary)
