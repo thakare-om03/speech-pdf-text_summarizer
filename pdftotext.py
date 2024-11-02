@@ -1,5 +1,4 @@
 import streamlit as st
-import base64
 import PyPDF2
 import re
 import torch
@@ -47,37 +46,6 @@ def ask_question(question, context):
 
 # Set up the Streamlit app
 st.set_page_config(page_title="PDF Summarizer & Q&A Chatbot", page_icon=":book:", layout="centered")
-
-# Function to load and encode the logo
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-# Load logo
-logo_path = "8943377.png"
-logo_base64 = get_base64_of_bin_file(logo_path)
-
-# Custom CSS
-st.markdown(f"""
-    <style>
-        .main {{ background-color: #e6f0ff; }}
-        .stTextInput > div > div > input {{ border: 2px solid #004080; }}
-        .stButton > button {{ background-color: #004080; color: white; border-radius: 5px; }}
-        .stButton > button:hover {{ background-color: #003366; }}
-        .header {{ display: flex; align-items: center; justify-content: space-between; background-color: #b3d9ff; padding: 10px; border-radius: 5px; }}
-        .logo {{ width: 100px; }}
-    </style>
-""", unsafe_allow_html=True)
-
-# App title with logo
-st.markdown(f"""
-    <div class="header">
-        <h2>PDF Text Summarization and Q&A Chatbot</h2>
-        <img src="data:image/png;base64,{logo_base64}" class="logo">
-    </div>
-    <hr>
-""", unsafe_allow_html=True)
 
 # File uploader
 uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
