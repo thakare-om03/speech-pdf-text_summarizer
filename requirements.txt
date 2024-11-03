@@ -1,30 +1,74 @@
-# Streamlit for the app UI
+# Core App Interface
 streamlit
 
-# Hugging Face Transformers for NLP models (summarization, question-answering)
+# Natural Language Processing and Machine Learning
 transformers
-
-# PyPDF2 for PDF handling
-PyPDF2
-
-# Regular Expressions for text manipulation (standard library, no install needed)
-# re
-
-# Pandas for data manipulation, especially for CSV news articles
-pandas
-
-# Google Generative AI for model-based content generation
-google-generativeai
-google-auth  # Needed for Google API authentication
-
-# YouTube Transcript API for fetching video transcripts
-youtube-transcript-api
-
-# Speech Recognition for converting audio to text
-SpeechRecognition
-
-# Textwrap for chunking text (standard library, no install needed)
-# textwrap
-
-# Optional: torch if using Hugging Face models that require PyTorch backend
 torch
+tensorflow
+langchain
+openai
+keras
+pydantic
+scipy
+numpy
+pandas
+joblib
+
+# Audio and Speech Processing
+SpeechRecognition
+librosa
+pyaudio
+pyannote.audio
+pyannote.core
+pyannote.database
+pyannote.metrics
+pyannote.pipeline
+openai_whisper
+
+# PDF and Text Processing
+PyPDF2
+pdfminer.six
+pdfplumber
+textwrap
+langchain_text_splitters
+
+# Data Science and Plotting
+matplotlib
+seaborn
+lightning
+lightning_fabric
+lightning_utilities
+llvmlite
+ml_dtypes
+
+# Google Generative AI and Authentication
+google-generativeai
+google-auth
+
+# Web and API Interactions
+requests
+jsonschema
+jsonpatch
+jsonpointer
+idna
+multidict
+urllib3
+
+# CSV and Other File Processing
+pandas
+pyarrow
+
+# Utils and Other Modules
+opt_einsum
+packaging
+platformdirs
+protocache
+proton-plus
+jsonschema_specifications
+marshmallow
+omegaconf
+
+# Additional Libraries for General NLP or Helper Functions
+nltk
+pdfminer.six
+langchain_community
