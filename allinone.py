@@ -9,7 +9,8 @@ import speech_recognition as sr
 import textwrap
 
 # Initialize Generative AI API
-genai.configure(api_key="AIzaSyCbttQBb77_8RGOeDkazcrGWn3v9GjF9hs")
+load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Initialize pipelines
 summarizer_pipeline = pipeline("summarization", model="facebook/bart-large-cnn")
