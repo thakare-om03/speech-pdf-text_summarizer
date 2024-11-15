@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv  # Add this line
 import streamlit as st
 from transformers import pipeline
 import PyPDF2
@@ -7,6 +9,7 @@ import google.generativeai as genai
 from youtube_transcript_api import YouTubeTranscriptApi
 import speech_recognition as sr
 import textwrap
+
 
 # Initialize Generative AI API
 load_dotenv()
@@ -87,9 +90,9 @@ with tabs[1]:
                     st.session_state.timeout_count = 0  # Reset timeout count on successful recognition
 
                 except sr.UnknownValueError:
-                    st.error("Google Speech Recognition could not understand audio.")
+                    st.error("Speech Recognition could not understand audio.")
                 except sr.RequestError as e:
-                    st.error(f"Could not request results from Google Speech Recognition service; {e}")
+                    st.error(f"Could not request results from  Speech Recognition service; {e}")
                 except sr.WaitTimeoutError:
                     # Handle the case when the listener times out
                     st.session_state.timeout_count += 1
